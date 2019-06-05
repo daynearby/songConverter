@@ -2,6 +2,7 @@ var pt = require("path");
 var fs = require('fs')
 let CUSTOM_LEVELS_PATH = "Beat Saber_Data/CustomLevels/";
 let ROOT_PATH = "CustomSongs/"
+var subFolders = []
 /**
   * 1. get CustomSongs folder list
   * 2. make sure exist info.json file exists
@@ -10,11 +11,12 @@ let ROOT_PATH = "CustomSongs/"
   * 5. copy cover,music to CUSTOM_LEVELS_PATH
   */
 function filesList(path) {
-    var subFolders = []
+
     //load files list
     var folders = fs.readdirSync(path)
     for (var i = 0; i < folders.length; i++) {
         var exist = fs.existsSync(path + folders[i] + "/info.json")
+
         if (exist) {
             var folder;
             if (ROOT_PATH == path) {
@@ -24,15 +26,18 @@ function filesList(path) {
                 var index = folder.indexOf("/")
                 folder = folder.substring(index + 1, folder.length)
             }
+           // console.log("sub folder "+ folder)
             conver(folder)
         } else {
-            filesList(path + folders[i] + "/")
+            if( undefined != folders[i]) {
+                filesList(path + folders[i] + "/")
+            }
         }
     }
 }
 
 function conver(path) {
-    //info.json target json 
+    //info.json target json
     var infoJson = {
         "_version": "2.0.0",
         "_songName": "",
@@ -67,13 +72,19 @@ function conver(path) {
     //enter directories
     //var path = 'Adventure of a Lifetime';
     //info.json
-    fs.readFile(ROOT_PATH + path + '/info.json', function (err, data) {
+    fs.readFile(ROOT_PATH + path + '/info.json',  'utf-8', function (err, data) {
         if (err) {
             return console.error(err);
         }
-        //console.log("read info "+(ROOT_PATH + path + '/info.json'))
+
+        console.log("read info "+(ROOT_PATH + path + '/info.json'))
         var info = data.toString();
-        info = JSON.parse(info);
+        try{
+            info = JSON.parse(info);
+        }catch (err) {
+            return console.log("error = "+err)
+        }
+        mkdirsSync(CUSTOM_LEVELS_PATH + path)
         //add song file
         infoJson['_songFilename'] = info['difficultyLevels'][0]['audioPath'];
         infoJson['_shuffle'] = info['difficultyLevels'][0]['_shuffle'];
@@ -124,16 +135,15 @@ function transformLevels(path, infoJson, difficultyLevels) {
             difficulty['_difficulty'] = difficultyLevels[i]['difficulty'];
             difficulty['_difficultyRank'] = difficultyLevels[i]['difficultyRank'];
             difficulty['_beatmapFilename'] = difficultyLevels[i]['jsonPath'].replace('.json', '.dat');
-
             //modify difficulty json  file
             let filePath = ROOT_PATH + path + "/" + difficulty['_difficulty'] + ".json";
+            //console.log("  filePath ==== "+filePath)
+            var exist = fs.existsSync(filePath)
+            if (!exist ) {
+                return
+            }
             var data = fs.readFileSync(filePath)
-            /*
-            fs.readFile(filePath,function(err,data){
-                if(err) {
-                    console.log(err);
-                }
-                */
+
             var level = JSON.parse(data.toString());
 
             difficulty['_noteJumpStartBeatOffset'] = level['_noteJumpStartBeatOffset'];
@@ -148,8 +158,7 @@ function transformLevels(path, infoJson, difficultyLevels) {
             //console.log("difficulty  = "+difficulty['_difficulty'])
             //save difficulty levels json file,such as: Easy.dat ,ExpertPlus.dat
             saveJSONFiles(path, difficulty['_difficulty'] + ".dat", level);
-            /*      });
-      */
+
             var data = fs.readFileSync(filePath)
             infoJson['_difficultyBeatmapSets'][0]['_difficultyBeatmaps'].push(difficulty);
         }
@@ -186,15 +195,15 @@ function saveJSONFiles(path, fileName, retJson) {
 //copy file
 function copyFile(fromPath, toPath) {
     fs.readFile(ROOT_PATH + fromPath, function (err, data) {
-        if (err) {
-            return console.log(err)
+        if (!err) {
+            fs.writeFile(CUSTOM_LEVELS_PATH + toPath, data, function (err) {
+                if (err) {
+                    console.error(err);
+                }
+                console.log("write file finish " + toPath);
+            })
+
         }
-        fs.writeFile(CUSTOM_LEVELS_PATH + toPath, data, function (err) {
-            if (err) {
-                console.error(err);
-            }
-            console.log("write file finish" + toPath);
-        })
     })
 
 }
