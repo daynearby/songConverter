@@ -1,4 +1,3 @@
-const {app, BrowserWindow} = require('electron')
 var pt = require("path");
 var fs = require('fs')
 let CUSTOM_LEVELS_PATH = "Beat Saber_Data/CustomLevels/";
