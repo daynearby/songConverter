@@ -14,9 +14,9 @@ function filesList(path) {
 
     //load files list
     var folders = fs.readdirSync(path)
-    for (var i = 0; i < folders.length; i++) {
+    for (var i = 0; i < 10 /*folders.length*/; i++) {
         var exist = fs.existsSync(path + folders[i] + "/info.json")
-
+       
         if (exist) {
             var folder;
             if (ROOT_PATH == path) {
@@ -29,7 +29,8 @@ function filesList(path) {
            // console.log("sub folder "+ folder)
             conver(folder)
         } else {
-            if( undefined != folders[i]) {
+            if( undefined != folders[i] &&
+                    fs.statSync(path + folders[i] + "/").isDirectory()) {
                 filesList(path + folders[i] + "/")
             }
         }
@@ -37,7 +38,7 @@ function filesList(path) {
 }
 
 function conver(path) {
-    //info.json target json
+    //info.json target json 
     var infoJson = {
         "_version": "2.0.0",
         "_songName": "",
@@ -76,7 +77,7 @@ function conver(path) {
         if (err) {
             return console.error(err);
         }
-
+        
         console.log("read info "+(ROOT_PATH + path + '/info.json'))
         var info = data.toString();
         try{
@@ -118,20 +119,20 @@ function conver(path) {
 
 //修改困难度
 function transformLevels(path, infoJson, difficultyLevels) {
-    //difficulty Levels
-    var difficulty = {
-        "_difficulty": "",
-        "_difficultyRank": 0.0,
-        "_beatmapFilename": "",
-        "_noteJumpMovementSpeed": 0.0,
-        "_noteJumpStartBeatOffset": 0
-    }
+   
 
     for (var i = 0; i < difficultyLevels.length; i++) {
         //Standard，saber
         if ("Standard" == difficultyLevels[i]['characteristic'] ||
             undefined == difficultyLevels[i]['characteristic']) {
-
+            //difficulty Levels
+            var difficulty = {
+                "_difficulty": "",
+                "_difficultyRank": 0.0,
+                "_beatmapFilename": "",
+                "_noteJumpMovementSpeed": 0.0,
+                "_noteJumpStartBeatOffset": 0
+            }
             difficulty['_difficulty'] = difficultyLevels[i]['difficulty'];
             difficulty['_difficultyRank'] = difficultyLevels[i]['difficultyRank'];
             difficulty['_beatmapFilename'] = difficultyLevels[i]['jsonPath'].replace('.json', '.dat');
@@ -141,7 +142,7 @@ function transformLevels(path, infoJson, difficultyLevels) {
             var exist = fs.existsSync(filePath)
             if (!exist ) {
                 return
-            }
+            } 
             var data = fs.readFileSync(filePath)
 
             var level = JSON.parse(data.toString());
@@ -155,12 +156,12 @@ function transformLevels(path, infoJson, difficultyLevels) {
             delete level['_shuffle'];
             delete level['_shufflePeriod'];
 
-            //console.log("difficulty  = "+difficulty['_difficulty'])
+            console.log("-------------difficulty  = "+difficulty['_difficulty'])
+            //var data = fs.readFileSync(filePath)
+            infoJson['_difficultyBeatmapSets'][0]['_difficultyBeatmaps'].push(difficulty);
             //save difficulty levels json file,such as: Easy.dat ,ExpertPlus.dat
             saveJSONFiles(path, difficulty['_difficulty'] + ".dat", level);
 
-            var data = fs.readFileSync(filePath)
-            infoJson['_difficultyBeatmapSets'][0]['_difficultyBeatmaps'].push(difficulty);
         }
         //TODO:oneSaber,noArrows
 
@@ -201,7 +202,7 @@ function copyFile(fromPath, toPath) {
                     console.error(err);
                 }
                 console.log("write file finish " + toPath);
-            })
+            })  
 
         }
     })
