@@ -1,8 +1,9 @@
 # songConverter
  beat saber song(before Ver 1.0) transform to available song(Ver 1.0.1)
  
-试使用electron打包，但是发现打包后软件太大，还不如直接下载node.js,然后再运行。
+试过用electron打包，但是发现打包后软件太大，还不如直接下载node.js,然后再运行。
 
+操作步骤：
 1. 安装[node.js](https://nodejs.org/en/) ，当前安装了10.16.0 LTS版本，一路默认点击下一步也行，不使用可以直接卸载。
 2. 打开到beat saber的目录，该目录下有CustomSongs这个文件夹，添加的歌曲都在这。
 3. 保存songConverter.js文件到beat saber的目录。
