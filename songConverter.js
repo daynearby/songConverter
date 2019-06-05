@@ -14,7 +14,7 @@ function filesList(path) {
 
     //load files list
     var folders = fs.readdirSync(path)
-    for (var i = 0; i < 10 /*folders.length*/; i++) {
+    for (var i = 0; i < folders.length; i++) {
         var exist = fs.existsSync(path + folders[i] + "/info.json")
        
         if (exist) {
@@ -156,7 +156,7 @@ function transformLevels(path, infoJson, difficultyLevels) {
             delete level['_shuffle'];
             delete level['_shufflePeriod'];
 
-            console.log("-------------difficulty  = "+difficulty['_difficulty'])
+            //console.log("-------------difficulty  = "+difficulty['_difficulty'])
             //var data = fs.readFileSync(filePath)
             infoJson['_difficultyBeatmapSets'][0]['_difficultyBeatmaps'].push(difficulty);
             //save difficulty levels json file,such as: Easy.dat ,ExpertPlus.dat
